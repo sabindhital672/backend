@@ -12,7 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Update the 'role' column for users who have a NULL value
+        // First, add the 'role' column to the 'users' table
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('role')->nullable()->default('user'); // Add the 'role' column
+        });
+
+        // Then, update existing records where 'role' is null
         DB::table('users')->whereNull('role')->update(['role' => 'user']);
     }
 
@@ -21,8 +26,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // You may not be able to 'unset' a column in MySQL,
-        // but you can set it to NULL
-        DB::table('users')->whereNotNull('role')->update(['role' => null]);
+        // To reverse the migration, drop the 'role' column
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('role');
+        });
     }
 };
